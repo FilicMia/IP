@@ -85,21 +85,14 @@ class JSParser(Parser):
 
 
 if __name__ == '__main__':
-    print(JSParser.parsiraj(js_lex('''\
+	lexer = js_lex('''\
         function ime (var x, var y, var z) {
             //neke naredbe odvojenih s ; ili komentar
             naredba; naredba //kom
             naredba
         }
-    ''')))
-    print(JSParser.parsiraj(js_lex('''\
-        function ime (var x, var y, var z) {
-            //neke naredbe odvojene s ; ili komentarima
-            naredba; naredba //kom
-            naredba
-        }
-        function ništa(){}
-        function trivijalna(var hmmm){naredba//
-        //
-        }
-    ''')))
+    ''')
+	for token in iter(lexer):
+		print(token)
+		
+
