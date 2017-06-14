@@ -60,7 +60,7 @@ class LJParser(Parser):
     def start(self):
         naredbe = []
         while not self >> E.KRAJ: naredbe.append(self.naredba())
-        print(self.zadnji)
+		
         return Program(naredbe)
 
     def naredba(self):
