@@ -22,7 +22,7 @@ class XHTML(enum.Enum):
 	OLZATV = '</ol>' #"""samo li elemente!!"""
 	ULZATV = '</ul>'
 	LIZATV = '</li>' #"""ili tekst ili obicna list"""	
-
+	PRAZANTXT = '\n\t ' #prazan tekst izmedu tagova. <html>      <head> i sl.
 	TEKST = 'nekitekst'
 
 escapeChars = ['<','>','']
@@ -107,6 +107,12 @@ def xhtml_lex(kôd):
 	lex = Tokenizer(kôd)
 	for znak in iter(lex.čitaj, ''):
 		if znak == '<':
+			lex.vrati()
+			if not lex.sadržaj and not lex.sadržaj.strip():
+				#print('prazan')
+				yield lex.token(XHTML.PRAZANTXT)
+			
+			lex.pročitaj('<')
 			prvo = lex.čitaj()
 			if prvo == '/':
 				drugo = lex.čitaj()
@@ -128,7 +134,7 @@ Za svaku varijablu koja je na lijevoj strani, napiši AST.
 """
 program -> HTMLOTV uhtml HTMLZATV
 
-uhtml -> (HEADOTV TEKST HEADZATV) (BODYOTV ubody BODYZATV) 
+uhtml -> HEADOTV TEKST HEADZATV   BODYOTV ubody BODYZATV 
 
 ubody  -> TEKST ubody  | LISTA ubody | EPS
 
@@ -138,7 +144,9 @@ ulisti -> LIOTV uli LIZATV ulisti | EPS
 
 uli -> TEKST | LISTA | EPS
 
-uli -> TEKST uli | LISTA uli | EPS NAPREDNO!! identicno ko ubody
+uli -> TEKST | LISTA viselisti | EPS ............NAPREDNO!! 
+
+viselisti -> LISTA | LISTA viselisti ..............NAPREDNO!!
 
 """
 tests = [1,2,3]
@@ -167,6 +175,7 @@ clan:  lista elemenata idi do kada ne oddes na </li>
 class xhtml_parser(Parser):
 	def start(self):
 		naredbe = []
+		while self >> XHTML.PRAZANTXT: pass
 		self.pročitaj(XHTML.HTMLOTV)
 		while not self >> XHTML.HTMLZATV: naredbe.append(self.naredba())
 		if not len(naredbe) == 1: self.greška()
