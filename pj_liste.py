@@ -60,10 +60,10 @@ class LJParser(Parser):
     def start(self):
         naredbe = []
         while not self >> E.KRAJ: naredbe.append(self.naredba())
+        print(self.zadnji)
         return Program(naredbe)
 
     def naredba(self):
-        print(self.zadnji)
         if self >> LJ.LISTA: return Deklaracija(self.pročitaj(LJ.ID))
         elif self >> LJ.PRAZNA: return Provjera(self.pročitaj(LJ.ID))
         elif self >> LJ.UBACI: return Ubaci(self.pročitaj(LJ.ID),

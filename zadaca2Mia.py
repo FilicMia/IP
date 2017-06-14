@@ -44,9 +44,7 @@ LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
 
 ulisti -> LIOTV uli LIZATV ulisti | EPS
 
-uli -> TEKST | viselisti
-
-viselisti -> LISTA viselisti | EPS 
+uli -> TEKST | LISTA | EPS
 """
 """------------------------------------------------------------
 ------------------------------------------------------------"""
@@ -144,24 +142,6 @@ uli -> TEKST uli | LISTA uli | EPS NAPREDNO!! identicno ko ubody
 
 """
 tests = [1,2,3]
-okolina
-if __name__ == '__main__':
-	if 1 in tests:
-		lexer = xhtml_lex('''<html         >
-
-	<head>
-	  Title of document
-	</head>
-
-	<body>
-	  <ol><li>neki</li></ol>
-	</body>
-
-	</html>
-		''')
-		for token in iter(lexer):
-			print(token) 
-#prekini citanje nakon HTML
 		
 
 
@@ -184,37 +164,62 @@ clan:  lista elemenata idi do kada ne oddes na </li>
 		sto, definiraj pomoću XHTML.OLOTV/ULOTV ili TEKST
 """
 
-class xhtml_lex(Parser):
+class xhtml_parser(Parser):
 	def start(self):
 		naredbe = []
+		self.pročitaj(XHTML.HTMLOTV)
 		while not self >> XHTML.HTMLZATV: naredbe.append(self.naredba())
 		if not len(naredbe) == 1: self.greška()
 		return Program(naredbe[0])
 	#citaj head and body	
 	def naredba(self):
-		prvi = self.čitaj()
 		#if prvi ** XHTML.TEKST: 
 		#	if not (prvi.sadržaj and prvi.sadržaj.strip()):
 		#		return self.greška()
-		if prvi ** XHTML.HEADOTV:
-			sadrzaj = []
-			while not self >> XHTML.HEADZATV:
-				sadrzaj.append(self.element())
-		else: self.greška()
-		if prvi ** XHTML.BODYOTV:
-			sadrzaj = []
-			while not self >> XHTML.BODYZATV:
-				sadrzaj.append(self.element())
-		else: self.greška()
+
+		self.pročitaj(XHTML.HEADOTV)
+		head = Head(self.pročitaj(XHTML.TEKST))
+		self.pročitaj(XHTML.HEADZATV)
+		
+		elementi = []
+		self.pročitaj(XHTML.BODYOTV)
+		while not self >> XHTML.BODYZATV: elementi.append(self.element())
+		return Html(head,Body(elementi))
+		
 	
 	#prouči sve elemente			
 	def element(self):
-			prvi = self.čitaj()
-			if prvi ** XHTML.TEKST: return Tekst(prvi)
-			elif prvi ** XHTML.OLOTV: 
+			
+			if self >> XHTML.TEKST: return Tekst(self.zadnji.sadržaj)
+			elif self >> XHTML.OLOTV: 
 				sadrzaj = []
-				while not self >> XHTML.OLZATV: sadrzaj.append(self)
-	def tekst(self)
+				while not self >> XHTML.OLZATV: sadrzaj.append(self.li())
+				
+				return Lista(XHTML.OLOTV.value,sadrzaj)
+			elif self >> XHTML.ULOTV: 
+				sadrzaj = []
+				while not self >> XHTML.ULZATV: sadrzaj.append(self.li())
+				
+				return Lista(XHTML.ULOTV.value,sadrzaj)
+			else:
+				self.greška()
+				
+	def li(self):
+		sadrzi = []
+		if self >> XHTML.LIOTV:
+			if self >> XHTML.TEKST: 
+				self.vrati()
+				sadrzi.append(self.element())
+				self.pročitaj(XHTML.LIZATV)
+			else:
+				while not self >> XHTML.LIZATV: #tek kada dode ce ga pročitati, ostale vraća
+					self.pročitaj(XHTML.OLOTV,XHTML.ULOTV)
+					self.vrati()
+					sadrzi.append(self.element())
+				
+			return Li(sadrzi)
+		else:
+			self.greška()
 
 
 class Program(AST('html')):
@@ -235,15 +240,15 @@ class Head(AST('tekst')):
 class Body(AST('elementi')):
 	
     def izvrši(self):
-		izlazi = []
-		for element in elementi:
-			izrazi.append(element.izvrši())
+        izlazi = []
+        for element in elementi:
+             izrazi.append(element.izvrši())
         return izlazi
 
 class Element(AST('element')):
 	
     def izvrši(self):
-		return element.izvrši()
+        return element.izvrši()
 
 class Tekst(AST('string')):
 	def izvrši(self):
@@ -256,13 +261,31 @@ class Lista(AST('vrsta clanovi')):
 		for clan in clanovi:
 			izrazi.append(clan.izvrši())
 		return (self.vrsta,izlazi)
-class Clan(AST('elementi')):
+class Li(AST('elementi')):
 	
 	def izvrši(self):
 		izlazi = []
 		for element in elementi:
 			izrazi.append(element.izvrši())
-        return izlazi
+		return izlazi
 	
-	
+if __name__ == '__main__':
+	if 1 in tests:
+		lexer = xhtml_lex('''<html         ><head>
+	  Title of document
+	</head><body>
+	  <ol><li>neki</li></ol>
+	</body></html>
+		''')
+		for token in iter(lexer):
+			print(token) 
+	if 2 in tests:
+		lexer = xhtml_lex('''<html         ><head>
+	  Title of document
+	</head><body>
+	  <ol><li>neki</li></ol>
+	</body></html>''')
+		print(*xhtml_parser.parsiraj(lexer))
+#prekini citanje nakon HTML	
+
 	
