@@ -63,6 +63,7 @@ class LJParser(Parser):
         return Program(naredbe)
 
     def naredba(self):
+        print(self.zadnji)
         if self >> LJ.LISTA: return Deklaracija(self.pročitaj(LJ.ID))
         elif self >> LJ.PRAZNA: return Provjera(self.pročitaj(LJ.ID))
         elif self >> LJ.UBACI: return Ubaci(self.pročitaj(LJ.ID),
@@ -86,7 +87,8 @@ class Program(AST('naredbe')):
 class Deklaracija(AST('lista')):
     """Deklaracija liste."""
     def izvrši(self, memorija):
-        if self.lista.sadržaj in memorija: self.lista.redeklaracija()
+        if self.lista.sadržaj in memorija: self.lista.redeklaracija() #self list je token koji ima
+																	#svoj sadržaj. -> velicina
         memorija[self.lista.sadržaj] = []
     
 class Provjera(AST('lista')):
@@ -132,13 +134,19 @@ def pogledaj(memorija, l_id):
 
 
 if __name__ == '__main__':
-    print(*lj_lex('lista L1 prazna ubaci -2345 izbaci L9 dohvati 3 koliko tr'))
-    print(*LJParser.parsiraj(lj_lex('''\
-	lista L1  lista L3
-	ubaci L3 45 0  dohvati L3 0
-	koliko L1  koliko L3
-	prazna L1  prazna L3
-	lista L5  ubaci L5 6 0  ubaci L5 7 1  ubaci L5 8 1  ubaci L5 9 0
-	dohvati L5 0  dohvati L5 1  dohvati L5 2  dohvati L5 3  koliko L5
-	izbaci L5 1  dohvati L5 0 dohvati L5 1 dohvati L5 2  koliko L5
-    ''')).izvrši())
+	lj = lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0''')
+	print(*lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))
+	print(*LJParser.parsiraj(lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))) 
+	
+#print(*LJParser.parsiraj(lj_lex('''\
+#lista L1 prazna ubaci -2345 izbaci L9 dohvati 3 koliko tr
+#
+#''')).izvrši()) #krivo :D
+
+#lista L1  lista L3
+#	ubaci L3 45 0  dohvati L3 0
+#koliko L1  koliko L3
+#	prazna L1  prazna L3
+#	lista L5  ubaci L5 6 0  ubaci L5 7 1  ubaci L5 8 1  ubaci L5 9 0
+#	dohvati L5 0  dohvati L5 1  dohvati L5 2  dohvati L5 3  koliko L5
+#	izbaci L5 1  dohvati L5 0 dohvati L5 1 dohvati L5 2  koliko L5

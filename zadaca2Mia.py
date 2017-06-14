@@ -34,7 +34,7 @@ escapeChars = ['<','>','']
 
 
 """
-dokument -> HTMLOTV uhtml HTMLZATV
+program -> HTMLOTV uhtml HTMLZATV
 
 uhtml -> (HEADOTV TEKST HEADZATV) (BODYOTV ubody BODYZATV) 
 
@@ -42,17 +42,13 @@ ubody  -> TEKST ubody  | LISTA ubody | EPS
 
 LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
 
-ulisti -> LIOTV uli LIZATV ulisti | epsilon
+ulisti -> LIOTV uli LIZATV ulisti | EPS
 
 uli -> TEKST | viselisti
 
 viselisti -> LISTA viselisti | EPS 
 """
 """------------------------------------------------------------
-'<' --> html,head,body,ol,ul,li --> '>'
-	-->				/ --> html,body,head,ol,ul,li --> '>'
-
-
 ------------------------------------------------------------"""
 """Provjerava je li <(\?)nešto> dobar XHTML tag za dani zadatak."""
 
@@ -109,7 +105,7 @@ def provjeri(lex,prvo,otv=True):
 """
 Lexer
 """
-def zadaca_lex(kôd):
+def xhtml_lex(kôd):
 	lex = Tokenizer(kôd)
 	for znak in iter(lex.čitaj, ''):
 		if znak == '<':
@@ -131,45 +127,142 @@ def zadaca_lex(kôd):
 Za svaku varijablu koja na desnoj strani nema samo tokene, napisi funkciju,
 Za svaku varijablu koja je na lijevoj strani, napiši AST.
 """
+"""
+program -> HTMLOTV uhtml HTMLZATV
 
+uhtml -> (HEADOTV TEKST HEADZATV) (BODYOTV ubody BODYZATV) 
+
+ubody  -> TEKST ubody  | LISTA ubody | EPS
+
+LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
+
+ulisti -> LIOTV uli LIZATV ulisti | EPS
+
+uli -> TEKST | LISTA | EPS
+
+uli -> TEKST uli | LISTA uli | EPS NAPREDNO!! identicno ko ubody
+
+"""
+tests = [1,2,3]
+okolina
 if __name__ == '__main__':
-	lexer = zadaca_lex('''<html         >
+	if 1 in tests:
+		lexer = xhtml_lex('''<html         >
 
-<head>
-  Title of document
-</head>
+	<head>
+	  Title of document
+	</head>
 
-<body>
-  <ol><li>neki</li></ol>
-</body>
+	<body>
+	  <ol><li>neki</li></ol>
+	</body>
 
-</html>
-    ''')
-	for token in iter(lexer):
-		print(token) 
+	</html>
+		''')
+		for token in iter(lexer):
+			print(token) 
 #prekini citanje nakon HTML
 		
 
 
 """
 AST:
-dokument: OTV HTML ZATV uhtml OTV KOSACRTA HTML ZATV
-uhtml: 
-"""
-"""class zadaca_Parser(Parser):
-    def dokument(self):
-        uhtml = []
-        while not self >> E.KRAJ: uhtml.append(self.naredba())
-        return Dokument(naredbe)"""
+program: html 
+html: head body
+head: tekst
+body: elementi
+elementi su tekst,ol,ul cuvani u listi elementi[] koje dodajemo
+def start(self):
+        elementi = []
+        while not self >> E.BODY: elementi.append(self.element())
+        #provjera dobrog zatvorenja.
+        return Program(elementi)
 
-"""def naredba(self):
-        if self >> LJ.LISTA: return Deklaracija(self.pročitaj(LJ.ID))
-        elif self >> LJ.PRAZNA: return Provjera(self.pročitaj(LJ.ID))
-        elif self >> LJ.UBACI: return Ubaci(self.pročitaj(LJ.ID),
-            self.pročitaj(LJ.BROJ, LJ.MINUSBROJ), self.pročitaj(LJ.BROJ))
-        elif self >> LJ.IZBACI:
-            return Izbaci(self.pročitaj(LJ.ID), self.pročitaj(LJ.BROJ))
-        elif self >> LJ.DOHVATI:
-            return Dohvati(self.pročitaj(LJ.ID), self.pročitaj(LJ.BROJ))
-        elif self >> LJ.KOLIKO: return Duljina(self.pročitaj(LJ.ID))
-        else: self.greška()"""
+tekst: string koj cini tekst token.sadržaj
+ol/li: vrsta = (ol,ul) clanovi <- list li_jeva
+clan:  lista elemenata idi do kada ne oddes na </li>
+		sto, definiraj pomoću XHTML.OLOTV/ULOTV ili TEKST
+"""
+
+class xhtml_lex(Parser):
+	def start(self):
+		naredbe = []
+		while not self >> XHTML.HTMLZATV: naredbe.append(self.naredba())
+		if not len(naredbe) == 1: self.greška()
+		return Program(naredbe[0])
+	#citaj head and body	
+	def naredba(self):
+		prvi = self.čitaj()
+		#if prvi ** XHTML.TEKST: 
+		#	if not (prvi.sadržaj and prvi.sadržaj.strip()):
+		#		return self.greška()
+		if prvi ** XHTML.HEADOTV:
+			sadrzaj = []
+			while not self >> XHTML.HEADZATV:
+				sadrzaj.append(self.element())
+		else: self.greška()
+		if prvi ** XHTML.BODYOTV:
+			sadrzaj = []
+			while not self >> XHTML.BODYZATV:
+				sadrzaj.append(self.element())
+		else: self.greška()
+	
+	#prouči sve elemente			
+	def element(self):
+			prvi = self.čitaj()
+			if prvi ** XHTML.TEKST: return Tekst(prvi)
+			elif prvi ** XHTML.OLOTV: 
+				sadrzaj = []
+				while not self >> XHTML.OLZATV: sadrzaj.append(self)
+	def tekst(self)
+
+
+class Program(AST('html')):
+    """Program u jeziku xhtml."""
+    def izvrši(self):
+        return self.html.izvrši()
+
+class Html(AST('head body')):
+	
+    def izvrši(self):
+        return [self.head.izvrši(),self.body.izvrši()]
+
+class Head(AST('tekst')):
+	
+    def izvrši(self):
+        return self.tekst.izvrši()
+
+class Body(AST('elementi')):
+	
+    def izvrši(self):
+		izlazi = []
+		for element in elementi:
+			izrazi.append(element.izvrši())
+        return izlazi
+
+class Element(AST('element')):
+	
+    def izvrši(self):
+		return element.izvrši()
+
+class Tekst(AST('string')):
+	def izvrši(self):
+		return string
+		
+class Lista(AST('vrsta clanovi')):
+	
+	def izvrši(self):
+		izlazi = []
+		for clan in clanovi:
+			izrazi.append(clan.izvrši())
+		return (self.vrsta,izlazi)
+class Clan(AST('elementi')):
+	
+	def izvrši(self):
+		izlazi = []
+		for element in elementi:
+			izrazi.append(element.izvrši())
+        return izlazi
+	
+	
+	

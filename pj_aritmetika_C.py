@@ -126,24 +126,24 @@ def ac_interpret(stablo, okolina=None):
             okolina[ime.sadržaj] = ac_interpret(izraz, okolina)
         return ac_interpret(stablo.izraz, okolina)
 
-def izračunaj(string): return ac_interpret(ACParser.parsiraj(ac_lex(string)))
+def izračunaj(string): return (ACParser.parsiraj(ac_lex(string)))
 
 if __name__ == '__main__':
     from math import pi
     print(izračunaj('2+2*3'))
-    print(izračunaj('(1+6*i)/(-4-3*i)^2'))
-    print(izračunaj('i^i'))
-    print(izračunaj('''\
-        i+1 -> t
-        t/2^2^-1 -> a
-        a^2^2^2^2^0 -> b
-        b
-    '''))
-    print(abs(izračunaj('''\
-        8 -> d
-        10^d -> n
-        (1+1/n)^n -> e
-        {} -> pi
-        e^(i*pi) + 1 -> skoro0
-        skoro0
-    '''.format(pi))))
+    #print(izračunaj('(1+6*i)/(-4-3*i)^2'))
+    #print(izračunaj('i^i'))
+    #print(izračunaj('''\
+     #   i+1 -> t
+    #    t/2^2^-1 -> a
+     #   a^2^2^2^2^0 -> b
+     #   b
+    #'''))
+    #print(abs(izračunaj('''\
+     #   8 -> d
+     #   10^d -> n
+     #   (1+1/n)^n -> e
+     #   {} -> pi
+     #   e^(i*pi) + 1 -> skoro0
+     #   skoro0
+    #'''.format(pi))))
