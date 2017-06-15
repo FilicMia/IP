@@ -8,6 +8,7 @@ Napišite i odgovarajući „semantički“ analizator (rendered) za XHTML liste
 
 from setimportpath import *
 from pj import *
+import re
 
 class XHTML(enum.Enum):
 	HTMLOTV = '<html>' #"""cijeli dokument uokviren u ovo - proizvoljno listi"""
@@ -145,7 +146,7 @@ ubody  -> TEKST ubody  | LISTA ubody | EPS
 
 LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
 
-ulisti -> LIOTV uli LIZATV ulisti | EPS
+ulisti -> LIOTV uli LIZATV ulisti #po xhtml pravilu bar 1 li!!!
 
 uli -> TEKST | LISTA | EPS
 
@@ -185,12 +186,6 @@ html: head body
 head: tekst
 body: elementi
 elementi su tekst,ol,ul cuvani u listi elementi[] koje dodajemo
-def start(self):
-        elementi = []
-        while not self >> E.BODY: elementi.append(self.element())
-        #provjera dobrog zatvorenja.
-        return Program(elementi)
-
 tekst: string koj cini tekst token.sadržaj
 ol/li: vrsta = (ol,ul) clanovi <- list li_jeva
 clan:  lista elemenata idi do kada ne oddes na </li>
@@ -210,7 +205,7 @@ class xhtml_parser(Parser):#samo jedan html dokument
 		if not len(naredbe) == 1: self.greška()
 		return Program(naredbe[0])
 		
-	#citaj head and body	
+	#citaj head i body	
 	def naredba(self):
 		while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
 		
@@ -239,19 +234,26 @@ class xhtml_parser(Parser):#samo jedan html dokument
 			elif self >> XHTML.OLOTV: 
 				sadrzaj = []
 				while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
-				while not self >> XHTML.OLZATV: 
+				while True: 
 					sadrzaj.append(self.li())
 					while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
 					
-				return Lista(sadrzaj)
+					if self >> XHTML.OLZATV:
+						break
+					
+				return Lista(XHTML.OLOTV.value,sadrzaj)
 			elif self >> XHTML.ULOTV: 
 				sadrzaj = []
 				while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst 
-				while not self >> XHTML.ULZATV: 
+				
+				while True: 
 					sadrzaj.append(self.li())
 					while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
+					
+					if self >> XHTML.ULZATV:
+						break
 				
-				return Lista(sadrzaj)
+				return Lista(XHTML.ULOTV.value,sadrzaj)
 			else:
 				self.greška()
 				
@@ -297,51 +299,63 @@ class Head(AST('tekst')):
         pass
 
 class Body(AST('elementi')):
-	
-    def izvrši(self,path=False):
-        for element in self.elementi:
-             element.izvrši(path)
-
-class Element(AST('element')):
-	
-    def izvrši(self,path=False,dubina = ''):
-        self.element.izvrši(path,dubina)
+	def izvrši(self,path=False):
+		
+		odvoji = ''
+		for element in self.elementi:
+			if path:
+				path.write(odvoji)
+				odvoji = '\n'
+			element.izvrši(path)
 
 class Tekst(AST('string')):
 	def izvrši(self,path=False,dubina = ''):
+		sadržaj =re.sub( '\s+', ' ', self.string.sadržaj).strip() #makni 
+		#visestruke razmake.
 		if path:
 			path.write(dubina)
-			path.write(self.string.sadržaj)
+			path.write(sadržaj)
 		else:
-			print(dubina,self.string.sadržaj)
+			print(dubina,sadržaj)
 		
-class Lista(AST('clanovi')):
+class Lista(AST('vrsta clanovi')):
 	
 	def izvrši(self,path=False,dubina = '' ):
 		izlazi = []
-		print(len(self.clanovi))
-		kraj = ''
+		odvoji = ''
+		
+		if dubina:
+			dubina2 = str(dubina[:-1])+' '
+		else: dubina2 = dubina
+		
 		for clan in self.clanovi:
 			if path:
-				path.write(kraj)
+				path.write(odvoji)
 			else:
-				print(kraj)
+				pass
 			clan.izvrši(path,str(dubina)+'\t')
-			kraj = '\n'
+			dubina = dubina2
+			odvoji = '\n'
 			
 class Li(AST('elementi')):
 	
 	def izvrši(self, path=False,dubina = ''):
-		
 		dubina = str(dubina)+'*'
-		print(dubina)
-		for element in (self.elementi):
-			element.izvrši(path,str(dubina))
 		if not self.elementi:
 			if path:
 				path.write(dubina)
 			else:
-				print(dubina)	
+				print(dubina)
+		
+		radna_dubina = dubina[:-1]+' ' 
+		odvoji = ''
+		for element in (self.elementi):
+			if path:
+				path.write(odvoji)
+			element.izvrši(path,dubina)
+			dubina = radna_dubina
+			odvoji = '\n'+dubina+'\t-------------------------\n' 
+			#razmak izmedu elemenata od li	
 
 """
 Napišite i odgovarajući „semantički“ analizator (rendered) za XHTML 
@@ -354,16 +368,17 @@ i dodatni tabulator (npr. lista unutar liste počinje s dva tabulatora,
 itd.).
 """
 import os.path
-def xhtml_analiziraj(program,izlaz):
-	while os.path.isfile(izlaz):
+def xhtml_analiziraj(program,izlaz=False):
+	while izlaz and os.path.isfile(izlaz):
 		izlaz = str(1)+izlaz
 	program.izvrši(izlaz)
 
 
 #tests = [1,11,20,21,22,23]	
-tests = [32]
+tests = [23,33]
 if __name__ == '__main__':
 	if 1 in tests:
+		print('primjer 1')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -375,6 +390,7 @@ if __name__ == '__main__':
 			print(token) 
 		print('\n\n')
 	if 11 in tests:
+		print('primjer 11')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -389,6 +405,7 @@ if __name__ == '__main__':
 			print(token) 
 		print('\n\n')
 	if 20 in tests:
+		print('primjer 20')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -398,6 +415,7 @@ if __name__ == '__main__':
 		print(*xhtml_parser.parsiraj(lexer))
 		
 	if 21 in tests:
+		print('primjer 21')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -411,6 +429,7 @@ if __name__ == '__main__':
 		print(*xhtml_parser.parsiraj(lexer))
 		
 	if 22 in tests:
+		print('primjer 22')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -420,9 +439,36 @@ if __name__ == '__main__':
 	</body></html>
 	''')
 		print(*xhtml_parser.parsiraj(lexer))
+	
+	if 23 in tests:
+		print('primjer 23')
+		lexer = xhtml_lex('''<html         >
+		<head>
+	  Title of document
+	</head><body>
+	  <ol><li>neki</li>
+	  <li>neki</li>
+	  <li>
+			<ol><li>neki 2</li>
+			  <li>
+				<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+				
+			  </li>
+			  <li></li>
+			  <li>neki 2</li>
+			</ol>
+	  </li>
+	  <li>neki</li>
+	  </ol>
+	</body></html>''')
+		print(*xhtml_parser.parsiraj(lexer))
 		
-		
-	if 23 in tests:#error
+	if 24 in tests:#error
+		print('primjer 24')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -435,6 +481,7 @@ if __name__ == '__main__':
 			print("Dobro je")
 			
 	if 30 in tests:
+		print('primjer 30')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -448,6 +495,7 @@ if __name__ == '__main__':
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument,'izlaz_test30.txt')
 	if 31 in tests:
+		print('primjer 31')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -463,6 +511,7 @@ if __name__ == '__main__':
 		
 
 	if 32 in tests:
+		print('primjer 32: izlaz u datoteku.')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -481,7 +530,104 @@ if __name__ == '__main__':
 	</body></html>''')
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument,'izlaz_test32.txt')
+	if 33 in tests:
+		print('primjer 33:')
+		lexer = xhtml_lex('''<html         >
+		<head>
+	  Title of document
+	</head><body>tekst
+	  <ol><li>neki</li>
+	  <li>neki</li>
+	  <li>
+			<ol><li>neki 2</li>
+			  <li>
+				<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+								<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+				
+			  </li>
+			  
+			  <li>neki 2</li>
+			</ol>
+	  </li>
+	  <li>neki</li>
+	  </ol>tekst
+	</body></html>''')
+		dokument = xhtml_parser.parsiraj(lexer)
+		xhtml_analiziraj(dokument)
+	if 33 in tests:
+		print('primjer 33: u dokument')
+		lexer = xhtml_lex('''<html         >
+		<head>
+	  Title of document
+	</head><body>
+	još teksta
+	  <ol><li>neki</li>
+	  <li>neki</li>
+	  <li>
+			<ol><li>neki 2</li>
+			  <li>
+				<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+								<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+				
+			  </li>
+			  
+			  <li>neki 2</li>
+			</ol>
+	  </li>
+	  <li>neki</li>
+	  </ol>neki tekst
+	</body></html>''')
+		dokument = xhtml_parser.parsiraj(lexer)
+		xhtml_analiziraj(dokument,'izlaz_pr33')
 
-#prekini citanje nakon HTML	
+if 34 in tests:
+		print('primjer 33: u dokument - error prazna lista <ul></ul>')
+		lexer = xhtml_lex('''<html         >
+		<head>
+	  Title of document
+	</head><body>
+	  <ol><li>neki</li>
+	  <li>neki</li>
+	  <li>
+			<ol><li>neki 2</li>
+			  <li>
+				<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+								<ol><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ol>
+				
+			  </li>
+			  
+			  <li>neki 2</li>
+			</ol>
+	  </li>
+	  <li>neki</li>
+	  </ol>
+	  <ul></ul>
+	</body></html>''')
+		dokument = xhtml_parser.parsiraj(lexer)
+		xhtml_analiziraj(dokument,'izlaz_pr33')
 
-	
+#TODO: u tekstu sve razmake zamijeniti samo s 1. -> jer tako radi XHTML
