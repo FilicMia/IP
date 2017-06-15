@@ -1,4 +1,6 @@
+from defaultpathimport import *
 from pj import *
+#print(sys.path)
 
 class XHTML(enum.Enum):
 	HTMLOTV = '<html>' #"""cijeli dokument uokviren u ovo - proizvoljno listi"""

@@ -1,5 +1,14 @@
+from defaultpathimport import *
 from lexer import *
 
+"""
+Parsiranje točno onako kako piše, html ima 2 taga body head,
+bez praznina između, tj. nije dopušteno <html>       		<head>neki tekst   
+   </head><body>     </body>		</html>
+
+nego <html><head>neki tekst   
+   </head><body>     </body></html>
+"""
 
 """
 AST:
@@ -10,7 +19,7 @@ body: elementi
 elementi su tekst,ol,ul cuvani u listi elementi[] koje dodajemo
 def start(self):
         elementi = []
-        while not self >> E.BODY: elementi.append(self.element())
+        while not self >> XHTML.BODY: elementi.append(self.element())
         #provjera dobrog zatvorenja.
         return Program(elementi)
 
@@ -26,13 +35,11 @@ class xhtml_parser(Parser):
 		
 		self.pročitaj(XHTML.HTMLOTV)
 		while not self >> XHTML.HTMLZATV: naredbe.append(self.naredba())
+		if not self >> E.KRAJ: self.greška()
 		if not len(naredbe) == 1: self.greška()
 		return Program(naredbe[0])
 	#citaj head and body	
 	def naredba(self):
-		#if prvi ** XHTML.TEKST: 
-		#	if not (prvi.sadržaj and prvi.sadržaj.strip()):
-		#		return self.greška()
 
 		self.pročitaj(XHTML.HEADOTV)
 		head = Head(self.pročitaj(XHTML.TEKST))
@@ -47,7 +54,7 @@ class xhtml_parser(Parser):
 	#prouči sve elemente			
 	def element(self):
 			
-			if self >> XHTML.TEKST: return Tekst(self.zadnji.sadržaj)
+			if self >> XHTML.TEKST: return Tekst(self.zadnji)
 			elif self >> XHTML.OLOTV: 
 				sadrzaj = []
 				while not self >> XHTML.OLZATV: sadrzaj.append(self.li())
@@ -115,8 +122,7 @@ if __name__ == '__main__':
 	  Title of document
 	</head><body>
 	  <ol><li>neki</li></ol>
-	</body></html>
-		''')
+	</body></html>''')
 		for token in iter(lexer):
 			print(token) 
 	if 2 in tests:
