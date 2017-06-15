@@ -8,7 +8,6 @@ bez praznina između, tj. nije dopušteno <html>       		<head>neki tekst
 
 nego <html><head>neki tekst   
    </head><body>     </body></html>
-Slijepo slijedimo zadatak.
 """
 
 """

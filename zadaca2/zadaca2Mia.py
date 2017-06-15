@@ -6,7 +6,7 @@ Napišite sintaksni analizator za pseudo-XHTML dokumente iz prvog zadatka. Provj
 Napišite i odgovarajući „semantički“ analizator (rendered) za XHTML liste iz prvog zadatka. Za svaki <li> element iz neuređene liste ispišite tabulator, „*“, sadržaj <li> elementa ako se radi o tekstu, te znak za prijelom retka. Ako je sadržaj <li> elementa nova lista, onda samo ispišite novu listu. Elemente liste s prve razine treba ispisati s jednim tabulatorom na početku, a za svaku dodatnu razinu treba ispisati i dodatni tabulator (npr. lista unutar liste počinje s dva tabulatora, itd.).
 """
 
-
+from setimportpath import *
 from pj import *
 
 class XHTML(enum.Enum):
@@ -149,9 +149,32 @@ ulisti -> LIOTV uli LIZATV ulisti | EPS
 
 uli -> TEKST | LISTA | EPS
 
-uli -> TEKST | LISTA viselisti | EPS ............NAPREDNO!! 
+uli -> TEKST | viselisti ............NAPREDNO!! 
 
-viselisti -> LISTA | LISTA viselisti ..............NAPREDNO!!
+viselisti -> LISTA | LISTA viselisti | EPS ..............NAPREDNO!!
+
+"""
+
+""" BESKONTEKSTNA GRAMATIKA KOJA DOPUŠTA PRAZNINE IZMEĐU XHTML TAGOVA
+početka jednoga i kraja drugoga i obratno, zanemaruje ih, tj. 
+<html>      <head></head>  <body></body>    </html> je isto kao i
+<html><head></head><body></body></html>
+
+program -> praznine HTMLOTV uhtml HTMLZATV praznine
+
+uhtml -> praznine HEADOTV TEKST HEADZATV praznine BODYOTV ubody BODYZATV praznine
+
+ubody  -> TEKST ubody  | praznine LISTA ubody | praznine    #praznine mogu ili u EPS pa nema | EPS
+
+LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
+
+ulisti -> praznine LIOTV uli LIZATV ulisti | praznine     #praznine mogu ili u EPS pa nema | EPS
+
+uli -> TEKST | viselisti ............NAPREDNO!! 
+
+viselisti -> praznine LISTA viselisti | praznine | EPS ..............NAPREDNO!!
+
+praznine -> PRAZANTXT praznine | EPS
 
 """
 
@@ -208,13 +231,14 @@ class xhtml_parser(Parser):#samo jedan html dokument
 		return Html(head,Body(elementi))
 		
 	
-	#prouči sve elemente			
+	#prouči sve elemente u body			
 	def element(self):
 			
 			if self >> XHTML.TEKST: 
 				return Tekst(self.zadnji)
 			elif self >> XHTML.OLOTV: 
 				sadrzaj = []
+				while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
 				while not self >> XHTML.OLZATV: 
 					sadrzaj.append(self.li())
 					while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst
@@ -222,6 +246,7 @@ class xhtml_parser(Parser):#samo jedan html dokument
 				return Lista(sadrzaj)
 			elif self >> XHTML.ULOTV: 
 				sadrzaj = []
+				while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst 
 				while not self >> XHTML.ULZATV: 
 					sadrzaj.append(self.li())
 					while self >> XHTML.PRAZANTXT: pass #preskacemo prazan tekst

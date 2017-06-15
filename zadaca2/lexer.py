@@ -1,4 +1,4 @@
-from defaultpathimport import *
+from setimportpath import *
 from pj import *
 #print(sys.path)
 
