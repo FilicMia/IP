@@ -27,7 +27,7 @@ escapeChars = ['<','>','']
 
 def provjeri(lex,prvo,otv=True):
 	if prvo == 'h':
-		drugo = lex.čitaj() #sadržaj token ačini sve proččitano od kreacije zadnjeg tokena
+		drugo = lex.čitaj() #sadržaj token ačini sve pročitano od kreacije zadnjeg tokena
 		if drugo == 't':
 			lex.pročitaj('m')
 			lex.pročitaj('l')

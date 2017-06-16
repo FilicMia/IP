@@ -1,4 +1,4 @@
 import sys
 
-lib = '../vekylib/'
+lib = '../../vekylib/'
 sys.path.append(lib)

@@ -28,32 +28,11 @@ class XHTML(enum.Enum):
 
 escapeChars = ['<','>','']
 
-"""PRVO lekser pa sintaksni analizator"""
-
 
 """Lekser"""
-
-
-"""
-program -> HTMLOTV uhtml HTMLZATV
-
-uhtml -> (HEADOTV TEKST HEADZATV) (BODYOTV ubody BODYZATV) 
-
-ubody  -> TEKST ubody  | LISTA ubody | EPS
-
-LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
-
-ulisti -> LIOTV uli LIZATV ulisti | EPS
-
-uli -> TEKST | LISTA | EPS
-"""
-"""------------------------------------------------------------
-------------------------------------------------------------"""
-"""Provjerava je li <(\?)nešto> dobar XHTML tag za dani zadatak."""
-
 def provjeri(lex,prvo,otv=True):
 	if prvo == 'h':
-		drugo = lex.čitaj() #sadržaj token ačini sve proččitano od kreacije zadnjeg tokena
+		drugo = lex.čitaj() #sadržaj token ačini sve pročitano od kreacije zadnjeg tokena
 		if drugo == 't':
 			lex.pročitaj('m')
 			lex.pročitaj('l')
@@ -169,11 +148,13 @@ ubody  -> TEKST ubody  | praznine LISTA ubody | praznine    #praznine mogu ili u
 
 LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
 
-ulisti -> praznine LIOTV uli LIZATV ulisti | praznine     #praznine mogu ili u EPS pa nema | EPS
+ulisti -> praznine LIOTV uli LIZATV ulistidalje     #lista ne može biti prazna
 
-uli -> TEKST | viselisti ............NAPREDNO!! 
+ulistidalje -> praznine LIOTV uli LIZATV ulistidalje | praznine  #praznine mogu ili u EPS pa nema | EPS
 
-viselisti -> praznine LISTA viselisti | praznine | EPS ..............NAPREDNO!!
+uli -> TEKST | viselisti 
+
+viselisti -> praznine LISTA viselisti | praznine | EPS 
 
 praznine -> PRAZANTXT praznine | EPS
 
@@ -314,6 +295,7 @@ class Tekst(AST('string')):
 		#visestruke razmake.
 		if path:
 			path.write(dubina)
+			if dubina: path.write(' ')
 			path.write(sadržaj)
 		else:
 			print(dubina,sadržaj)
@@ -325,29 +307,34 @@ class Lista(AST('vrsta clanovi')):
 		odvoji = ''
 		
 		if dubina:
-			dubina2 = str(dubina[:-1])+' '
+			dubina2 = str(dubina[:-2])+'  '
 		else: dubina2 = dubina
 		
+		index = 1
 		for clan in self.clanovi:
 			if path:
 				path.write(odvoji)
 			else:
 				pass
-			clan.izvrši(path,str(dubina)+'\t')
+			bullet = ' *'
+			if self.vrsta == XHTML.OLOTV.value: 
+				bullet = str(index)+'.'
+				index = index+1
+			clan.izvrši(path,str(dubina)+'\t'+bullet)
 			dubina = dubina2
 			odvoji = '\n'
 			
 class Li(AST('elementi')):
 	
 	def izvrši(self, path=False,dubina = ''):
-		dubina = str(dubina)+'*'
+		dubina = str(dubina)
 		if not self.elementi:
 			if path:
 				path.write(dubina)
 			else:
 				print(dubina)
 		
-		radna_dubina = dubina[:-1]+' ' 
+		radna_dubina = dubina[:-2]+'  ' 
 		odvoji = ''
 		for element in (self.elementi):
 			if path:
@@ -374,7 +361,7 @@ def xhtml_analiziraj(program,izlaz=False):
 	program.izvrši(izlaz)
 
 
-#tests = [1,11,20,21,22,23]	
+#tests = [1,11,20,21,22,30]	
 tests = [23,33]
 if __name__ == '__main__':
 	if 1 in tests:
@@ -446,7 +433,8 @@ if __name__ == '__main__':
 		<head>
 	  Title of document
 	</head><body>
-	  <ol><li>neki</li>
+	još teksta
+	  <ul><li>neki</li>
 	  <li>neki</li>
 	  <li>
 			<ol><li>neki 2</li>
@@ -456,14 +444,25 @@ if __name__ == '__main__':
 				  <li></li>
 				  <li>neki 3</li>
 				</ol>
+								<ul><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>
+						<ul><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>neki 3</li>
+				</ul>	
+				</li>
+				</ul>
 				
 			  </li>
-			  <li></li>
+			  
 			  <li>neki 2</li>
 			</ol>
 	  </li>
 	  <li>neki</li>
-	  </ol>
+	  </ul>neki tekst
 	</body></html>''')
 		print(*xhtml_parser.parsiraj(lexer))
 		
@@ -481,7 +480,7 @@ if __name__ == '__main__':
 			print("Dobro je")
 			
 	if 30 in tests:
-		print('primjer 30')
+		print('primjer 30 -- miče višestruke razmake iz teksta')
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
@@ -491,6 +490,10 @@ if __name__ == '__main__':
 	  <li></li>
 	  <li>neki</li>
 	  </ol>
+
+hjsdgh
+hasdfhas
+hasdfh                iasdhfi aghdfg    
 	</body></html>''')
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument,'izlaz_test30.txt')
@@ -535,8 +538,9 @@ if __name__ == '__main__':
 		lexer = xhtml_lex('''<html         >
 		<head>
 	  Title of document
-	</head><body>tekst
-	  <ol><li>neki</li>
+	</head><body>
+	još teksta
+	  <ul><li>neki</li>
 	  <li>neki</li>
 	  <li>
 			<ol><li>neki 2</li>
@@ -546,11 +550,17 @@ if __name__ == '__main__':
 				  <li></li>
 				  <li>neki 3</li>
 				</ol>
-								<ol><li>neki 3</li>
+								<ul><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>
+						<ul><li>neki 3</li>
 				  <li>neki 3</li>
 				  <li></li>
 				  <li>neki 3</li>
-				</ol>
+				</ul>	
+				</li>
+				</ul>
 				
 			  </li>
 			  
@@ -558,7 +568,7 @@ if __name__ == '__main__':
 			</ol>
 	  </li>
 	  <li>neki</li>
-	  </ol>tekst
+	  </ul>neki tekst
 	</body></html>''')
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument)
@@ -569,7 +579,7 @@ if __name__ == '__main__':
 	  Title of document
 	</head><body>
 	još teksta
-	  <ol><li>neki</li>
+	  <ul><li>neki</li>
 	  <li>neki</li>
 	  <li>
 			<ol><li>neki 2</li>
@@ -579,11 +589,17 @@ if __name__ == '__main__':
 				  <li></li>
 				  <li>neki 3</li>
 				</ol>
-								<ol><li>neki 3</li>
+								<ul><li>neki 3</li>
+				  <li>neki 3</li>
+				  <li></li>
+				  <li>
+						<ul><li>neki 3</li>
 				  <li>neki 3</li>
 				  <li></li>
 				  <li>neki 3</li>
-				</ol>
+				</ul>	
+				</li>
+				</ul>
 				
 			  </li>
 			  
@@ -591,7 +607,7 @@ if __name__ == '__main__':
 			</ol>
 	  </li>
 	  <li>neki</li>
-	  </ol>neki tekst
+	  </ul>neki tekst
 	</body></html>''')
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument,'izlaz_pr33')
@@ -612,11 +628,11 @@ if 34 in tests:
 				  <li></li>
 				  <li>neki 3</li>
 				</ol>
-								<ol><li>neki 3</li>
+								<ul><li>neki 3</li>
 				  <li>neki 3</li>
 				  <li></li>
 				  <li>neki 3</li>
-				</ol>
+				</ul>
 				
 			  </li>
 			  
@@ -629,5 +645,3 @@ if 34 in tests:
 	</body></html>''')
 		dokument = xhtml_parser.parsiraj(lexer)
 		xhtml_analiziraj(dokument,'izlaz_pr33')
-
-#TODO: u tekstu sve razmake zamijeniti samo s 1. -> jer tako radi XHTML

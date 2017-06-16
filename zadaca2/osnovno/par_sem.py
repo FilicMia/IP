@@ -17,16 +17,25 @@ html: head body
 head: tekst
 body: elementi
 elementi su tekst,ol,ul cuvani u listi elementi[] koje dodajemo
-def start(self):
-        elementi = []
-        while not self >> XHTML.BODY: elementi.append(self.element())
-        #provjera dobrog zatvorenja.
-        return Program(elementi)
 
 tekst: string koj cini tekst token.sadržaj
 ol/li: vrsta = (ol,ul) clanovi <- list li_jeva
 clan:  lista elemenata idi do kada ne oddes na </li>
 		sto, definiraj pomoću XHTML.OLOTV/ULOTV ili TEKST
+"""
+
+"""
+program -> HTMLOTV uhtml HTMLZATV
+
+uhtml -> (HEADOTV TEKST HEADZATV) (BODYOTV ubody BODYZATV) 
+
+ubody  -> TEKST ubody  | LISTA ubody | EPS
+
+LISTA -> OLOTV ulisti OLZATV | ULOTV ulisti ULZATV
+
+ulisti -> LIOTV uli LIZATV ulisti | EPS
+
+uli -> TEKST | LISTA | EPS
 """
 
 class xhtml_parser(Parser):
@@ -143,21 +152,6 @@ def xhtml_interpreter(program):
 	
 tests = [32]	
 if __name__ == '__main__':
-	if 1 in tests:
-		lexer = xhtml_lex('''<html         ><head>
-	  Title of document
-	</head><body>
-	  <ol><li>neki</li></ol>
-	</body></html>''')
-		for token in iter(lexer):
-			print(token) 
-	if 2 in tests:
-		lexer = xhtml_lex('''<html         ><head>
-	  Title of document
-	</head><body>
-	  <ol><li>neki</li></ol>
-	</body></html>''')
-		print(*xhtml_parser.parsiraj(lexer))
 	if 32 in tests:
 		lexer = xhtml_lex('''<html         ><head>
 	  Title of document
