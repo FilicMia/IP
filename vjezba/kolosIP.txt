@@ -1,0 +1,85 @@
+
+docs.google.com
+Stari kolokviji iz Interpretacije programa
+10-12 minutes
+
+19. siječnja 2012.
+
+Napišite leksički analizator za JavaScript funkcije. JavaScript funkcija počinje ključnom riječi function, zatim slijedi ime funkcije, pa lista parametara, te tijelo funkcije unutar vitičastih zagrada. Tijelo funkcije sastoji se od linijskih komentara (//) i od naredbi (niz znakova koji završava s ;). Npr.
+
+function ime (var x, var y, ...){
+
+         //neke naredbe odvojene s ; ili komentar
+
+}
+
+Napišite sintaksni analizator za prepoznavanje ispravno napisanih JavaScript funkcija iz prvog zadatka. Analizator treba pretvoriti zadani JavaScript program (koji se sastoji samo od funkcija) u apstraktna sintaksna stabla: Program, Funkcija, Naredba. U tijelu funkcije dozvolite više naredbi odvojenih s ; i linijske komentare.
+
+31. siječnja 2011.
+
+Napišite leksički analizator za „programski jezik“ koji radi sa vezanom listom u kojoj se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti deklariranje liste (LISTA L1), gdje se ime liste sastoji od jednog velikog slova 'L' i jedne znamenke od 1 do 9 (dakle, možemo deklarirati maksimalno 9 listi). Operacije za rad sa listom su uobičajene: provjera je li lista prazna (PRAZNA L1), stavljanje elementa u listu na određeno mjesto (UBACI L1 2345 3 – ubacuje element 2345 na treće mjesto u listi L1), brisanje elementa iz liste (IZBACI L1 3 – izbacuje element s treće pozicije iz liste L1), dohvat elementa is liste (DOHVATI L1 3 – vraća element koji se u listi L1 nalazi na trećoj poziciji) i vraćanje duljine liste (KOLIKO L1). Napišite sintaksni analizator za taj programski jezik (svaka vrsta naredbe odgovara jednom tipu apstraktnog sintaksnog stabla). Napišite i odgovarajući semantički analizator (interpreter).
+
+3. veljače 2012.
+
+Napišite leksički analizator za „programski jezik“ koji radi sa skupovima u kojima se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti deklariranje skupa (npr. SKUP S), gdje se ime skupa sastoji od jednog velikog slova iz engleske abecede (npr. 'S'). Operacije za rad sa skupom su uobičajene: provjera je li skup prazan (PRAZAN S), ubacivanje elementa u skup (UBACI S 2345 32 41), izbacivanje elementa iz skupa (IZBACI S 2345 13), provjera da li je element u skupu (ELEMENT S 2345), vraćanje broja elemenata u skupu (VELIČINA S), te ispis skupa (ISPIŠI S). Napišite sintaksni analizator za taj programski jezik (svaka vrsta naredbe odgovara jednom tipu apstraktnog sintaksnog stabla). Omogućite da operacije UBACI i IZBACI mogu primiti više brojeva. Napišite i odgovarajući semantički analizator (interpreter).
+
+18. siječnja 2013.
+
+Napišite leksički analizator za pseudo-XHTML dokument koji sadrži samo tablice. Cijeli dokument je uokviren samo u <html> element. Tablica <table> se sastoji od redaka <tr>, redovi od ćelija <td> ili u zaglavlju <th>. U ćelijama može pisati bilo što. Dokument može imati proizvoljan broj tablica, koje se mogu nalaziti i jedna unutar druge.
+
+Napišite sintaksni analizator za pseudo-XHTML dokumente iz prvog zadatka. Provjerite uobičajena XHTML pravila: je li cijeli dokument uokviren u <html> elemete, je li odnos HTML elemenata odgovarajući, je li svaki element i zatvoren, jesu li svi elementi napisani malim slovima, jesu li elementi odgovarajuće ugnježdeni, itd. Omogućite i da se u ćeliji tablice, osim običnog teksta, može pojaviti i nova tablica. Redovi tablice smiju sadržavati samo ćelije, a sama tablica smije sadržavati samo redove (ne i običan tekst). Tablica smije imati najviše jedan redak u kojem se nalaze ćelije zaglavlja (<th>) i taj redak, ako postoji, mora biti prvi redak u tablici. Sami odaberite vrste apstraktnih sintaksnih stabala.
+
+Napišite i odgovarajući „semantički“ analizator (renderer) za XHTML tablice iz prvog zadatka. „Akcije“ su sljedeće: za svaku ćeliju samo ispišite „|“, njen sadržaj i tabulator; za svaki redak ispišite znak za prijelom retka. Tablicu započnite i završite s ispisom „horizontalne crte“ (dovoljno minusa „----------“). Ako tablica ima zaglavlje, nakon zaglavlja ispišite istu „horizontalnu crtu“.
+
+31. siječnja 2014.
+
+Napišite leksički analizator za jezik koji omogućuje rad s običnim varijablama i poljima. Dozvoljeni tipovi su char, int, float i bool. Deklaracije varijabli su nužne, a dozvoljeni oblici su npr. int i; odnosno int polje[123];. Ime varijable je niz slova i znamenki, a započinje slovom. Kod rada s varijablama potrebno je dozvoliti pridruživanje (npr. i=56; ili polje[28]=32;). Omogućite i ispisivanje: print i; ispisuje varijablu i, print polje; ispisuje cijelo polje, a print polje 2 7; ispisuje elemete polja od 2. do 7. mjesta.
+
+Napišite sintaksni analizator (parser), te semantički analizator (kompajler u C). Pazite da je kod polja indeks u odgovarajućem rasponu.
+
+16. veljače 2015.
+
+Napišite leksički analizator za jezik koji omogućuje (jako) pojednostavljeno korištenje for-petlji koje sintaksom sliče C++ for-petljama. Npr.
+
+for ( i = 8 ; i < 23 ; i += 2 ) cout << i << endl ;
+
+Naredba za ispis može sadržavati oznaku za kraj retka ili ne. Ime varijable se sastoji od jednog ili više malih slova engleske abecede. Petlje mogu biti ugniježđene, i program se može sastojati od više petlji. Petlja može sadržavati i blokove. Dozvolite osnovne operatore uspoređivanja i pridruživanja. Napravite sintaksni analizator i semantički analizator (interpreter) za taj jezik.
+
+2. veljače 2015.
+
+Napišite leksički analizator za pseudo-XHTML dokument koji sadrži samo liste. Cijeli dokument je uokviren samo u <html> element koji se sastoji od zaglavlja <head> i tijela <body>. Zaglavlje smije sadržavati samo običan tekst, a tijelo se sastoji od običnog teksta i listi. Liste mogu biti uređene <ol> i neuređene <ul>. Lista se sastoji od <li> elemenata. U jednom elementu liste smije se nalaziti običan tekst ili nova lista, ali ne i oboje. Dokument može sadržavati proizvoljan broj listi. Poštujte uobičajena pravila za XHTML dokumente.
+
+Napišite sintaksni analizator za pseudo-XHTML dokumente iz prvog zadatka. Provjerite uobičajena XHTML pravila: je li cijeli dokument uokviren u <html> elemente, je li odnos XHTML elemenata odgovarajući , je li svaki element i zatvoren, jesu li svi elementi napisani malim slovima, jesu li elementi odgovarajuće ugnježdeni, itd. Omogućite i da se u <li> elementu liste, osim običnog teksta, može pojaviti i nova lista (ali ne i oboje). Liste smiju sadržavati samo <li> elemente (ne tekst i ne direktno druge liste).
+
+Napišite i odgovarajući „semantički“ analizator (rendered) za XHTML liste iz prvog zadatka. Za svaki <li> element iz neuređene liste ispišite tabulator, „*“, sadržaj <li> elementa ako se radi o tekstu, te znak za prijelom retka. Ako je sadržaj <li> elementa nova lista, onda samo ispišite novu listu. Elemente liste s prve razine treba ispisati s jednim tabulatorom na početku, a za svaku dodatnu razinu treba ispisati i dodatni tabulator (npr. lista unutar liste počinje s dva tabulatora, itd.).
+
+19. veljače 2016.
+
+Napišite leksički, sintaksni i semantički analizator (kompajler u Python) za jezik koji omogućuje rad sa skupovima riječi. Riječi su nizovi malih slova bez razmaka. Nužno je deklarirati skupove: SKUP S;. Ime skupa je niz velikih slova i znamenki, započinje slovom, a sve znamenke moraju biti na kraju imena. U skupove je moguće ubacivati i iz njih izbacivati riječi: A += pero; ili A –= maja; Moguće je provjeriti je li zadana riječ u skupu: A ? ivo; Omogućite i ispisivanje skupova: ISPISI A; ispisuje skup A, ISPISI A [d-h]; ispisuje elemente skupa čije je prvo slovo između d i h.
+
+10. veljače 2017.
+
+    Specijalni znak je naziv za otvorenu ili zatvorenu zagradu, vertikalnu ili kosu crtu te zvjezdicu. Napišite funkciju specijalan koja prima znak i vraća je li specijalan. (Kosa crta je /, a ne \. Zagrade su samo oble (). Primijetite: razmak nije specijalan).
+    Svakom specijalnom znaku odgovara zasebni tip tokena. Svim ostalim znakovima odgovara jedan tip tokena ZNAK, čiji sadržaj kaže o kojem se znaku radi. Svi tokeni (osim KRAJ) imaju sadržaj duljine 1. Napišite odgovarajuće članove Enum-klase Ri.
+    Napišite funkciju (generator) ri_lex koja yielda tokene čiji tipovi su gore navedeni, a čiji sadržaji predstavljaju znakove ulaznog stringa.
+    Regularni izrazi grade se od elementarnih jezika koji su predstavljeni tokenom ZNAK, te praznog jezika /. Grade se (rastućim prioritetom, kojeg možemo mijenjati zagradama) unijom (binarni infiksni operator |), konkatenacijom, te zvjezdicom (unarni postfiksni operator *). Napišite odgovarajuću beskontekstnu gramatiku nad abecedom koju čine tipovi tokena.
+    Svaki nespecijalni znak α predstavlja jezik koji sadrži samo jednoslovnu riječ α. Izraz (r) predstavlja isti jezik kao izraz r, dok izraz r* predstavlja Kleenejevu zvijezdu tog jezika. Napišite klasu RIParser tako da funkcija RIParser.parsiraj prima string i vraća RegularanIzraz kojeg on predstavlja.
+    Prijavite korisne poruke o greškama (navodeći poziciju greške, koji tokeni su očekivani, a koji je pročitan) ako argument od RI_parse ne predstavlja validan regularan izraz. (Ovo će biti trivijalno ispunjeno ako koristite pj framework.)
+
+24. veljače 2017.
+
+Programski jezik μLogo ima tri ključne riječi: FORWARD, LEFT i REPEAT. Ključna riječ FORWARD može se skratiti u FD, a LEFT u LT (ne mijenjajući tip tokena). U μLogu postoje i prirodni brojevi, te uglate zagrade. Oni mogu biti razdvojeni prazninama, koje se zanemaruju. Sve ostalo je leksička greška. Napišite potrebne tipove tokena.
+
+Napišite lekser za μLogo. Primjer: ] 57 BLAbla REPEAT FD treba generirati tokene ZATV']', BROJ'57', GREŠKA'BLAbla', REPEAT'REPEAT', FORWARD'FD'.
+
+μLogo ima tri vrste naredbi: FORWARD x za pomicanje kursora x piksela u trenutnom smjeru, LEFT x za rotaciju trenutnog smjera x stupnjeva pozitivno, te REPEAT x [ naredbe ]  za izvršavanje grupe naredbi x puta. Argument x predstavlja prirodan broj.
+
+Napišite beskontekstnu gramatiku za μLogo, nad abecedom koju čine tipovi tokena.
+Dokažite da bi ta gramatika bila višeznačna da iz jezika izbacimo uglate zagrade.
+Napišite parser za μLogo. Parser treba vratiti tip.AST strukturu (ili listu njih) ako je ulaz validan μLogo program, a prijaviti detaljnu sintaksnu grešku ako nije.
+
+Primjer: REPEAT 4 [LT 90 FD 150] LT 30 FD 150 LT 120 FD 150 crta kućicu. Parsira se kao lista [REPEAT(x=4, naredbe=[LEFT(x=90), FORWARD(x=150)]),
+LEFT(x=30), FORWARD(x=150), LEFT(x=120), FORWARD(x=150)].
+
+Napišite kompajler μLogo jezika u JavaScript. Koristite canvas.
+
