@@ -124,35 +124,86 @@ class logo_parser(Parser):
             self.greška() 
 
 
-class PROGRAM(AST('naredbe')): pass
-class FORWARD(AST('x')): pass
-class LEFT(AST('x')): pass
-class REPEAT(AST('x naredbe')): pass
+class PROGRAM(AST('naredbe')):
+	
+	def izvrši(self):
+		s = ""
+		kontekst = {'x':0, 'y':0, 'fi': 0} #naprijed iznad sebe
+		for naredba in self.naredbe:
+			s = s+naredba.izvrši(kontekst)
+		print(self)
+		print("prog")
+		return s;
+class FORWARD(AST('x')):
+	
+	def izvrši(self,kontekst):
+		print("Forvar")
+		s=""
+		x = kontekst['x']
+		y = kontekst['y']
+		fi = kontekst['fi']
+		xx = int(self.x.sadržaj)
+		
+		if fi == 0 :
+			x = (x + xx) % 300
+			s = s+"ctx.lineTo("+str(x)+","+str(y)+");"
+		elif fi == 90:
+			y = (y + xx) % 300
+			s = s+"ctx.lineTo("+str(x)+","+str(y)+");"
+		elif fi == 180:
+			x = (x - xx) % 300
+			s = s+"ctx.lineTo("+str(x)+","+str(y)+");"
+		else: #270
+			y = (y - xx) % 300
+			s = s+"ctx.lineTo("+str(x)+","+str(y)+");"
+		
+		
+		kontekst['x'] = x
+		kontekst['y'] = y
+		print(s)
+		return s
+class LEFT(AST('x')): 
+	
+	def izvrši(self,kontekst):
+		kontekst['fi'] = kontekst['fi']+90 % 360
+		return ""
+class REPEAT(AST('x naredbe')): 
+	
+	def izvrši(self,kontekst):
+		s = ""
+		for naredba in self.naredbe:
+			s = s+naredba.izvrši(kontekst)
+		return s
 
 
 """
 Napišite kompajler μLogo jezika u JavaScript. Koristite canvas.
 """
+
+import os.path
 def logo_interpreter(lexer):
-    početak = "<!doctype html> <html lang=\"en\"><head>"+
-    "<meta charset=\"utf-8\">
-
-  <title>The HTML5 Herald</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
-
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
-
-  <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-  <![endif]-->
-</head>
-
-<body>
-  <script src="js/scripts.js"></script>
-</body>
-</html>"
-    
+    početak = '''\
+		<!DOCTYPE html><html><head><title>HTML5 Canvas For Absolute Beginners | onlyWebPro.com
+		</title><script type=\"text/javascript\">
+		function drawShape() 
+		{var myCanvas = document.getElementById(\"myCanvas\");
+		var ctx = myCanvas.getContext(\"2d\");
+		ctx.beginPath();
+		ctx.lineTo(0,0);'''
+    kraj = '''\
+		 ctx.stroke();
+		 }</script>
+		 </head>
+		 <body onload=\"drawShape()\"><canvas id=\"myCanvas\" width=\"300\" height=\"300\">
+		 </canvas></body></html>'''
+    print("LOGO")
+    content = početak+lexer.izvrši()+kraj
+    izlaz = 'javascript.html'
+    while izlaz and os.path.isfile(izlaz):
+        izlaz = str(1)+izlaz
+    path = open(izlaz,'a')
+    path.write(content)
+    path.close()
 
 
 
@@ -167,8 +218,13 @@ if __name__ == '__main__':
         print(*logo_parser.parsiraj(lj))
     """
 
-    primjer = "REPEAT 4 [LT 90 FD 150] LT 30 FD 150 LT 120 FD 150"
-    print(*logo_lex(primjer))
+    primjer = "FD 150 REPEAT 4 [LT 90 FD 150] LT 30 FD 150 LT 120 FD 150"
+    #print(*logo_lex(primjer))
     lj = logo_lex(primjer)
     print(*logo_parser.parsiraj(lj))
+    lj = logo_lex(primjer)
+    primjerPar = logo_parser.parsiraj(lj)
+    logo_interpreter(primjerPar)
+    
+    
     
