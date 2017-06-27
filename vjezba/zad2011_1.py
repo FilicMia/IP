@@ -19,7 +19,7 @@ from setimportpath import *
 from pj import *
 
 """
-BESKONTEKSTNA GRAMATIKA:
+BESKONTEKSTNA GRAMATIKA: hhh
 start -> praznine naredba start | EPS
 naredba ->  lista |  prazna |  ubaci | 
 			 izbaci |  dohvati |  koliko |
