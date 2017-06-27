@@ -9,17 +9,24 @@ određeno mjesto (UBACI L1 2345 3 – ubacuje element 2345 na treće mjesto
 u listi L1), brisanje elementa iz liste (IZBACI L1 3 – izbacuje element 
 s treće pozicije iz liste L1), dohvat elementa is liste (DOHVATI L1 3 – 
 vraća element koji se u listi L1 nalazi na trećoj poziciji) i vraćanje 
-duljine liste (KOLIKO L1). Napišite sintaksni analizator za taj 
+duljine liste (KOLIKO L1).
+
+
+Napišite sintaksni analizator za taj 
 programski jezik (svaka vrsta naredbe odgovara jednom tipu 
-apstraktnog sintaksnog stabla). Napišite i odgovarajući semantički 
+apstraktnog sintaksnog stabla).
+
+Napišite i odgovarajući semantički 
 analizator (interpreter).
+== Ubacuje izbacuje elemente iz stabla, kreira listu kao preznu,
+provjera je li lista prazna i sl.
 
 """
 from setimportpath import *
 from pj import *
 
 """
-BESKONTEKSTNA GRAMATIKA: hhh
+BESKONTEKSTNA GRAMATIKA:
 start -> praznine naredba start | EPS
 naredba ->  lista |  prazna |  ubaci | 
 			 izbaci |  dohvati |  koliko |
@@ -89,7 +96,7 @@ class Lista_parser(Parser):
 	def start(self):
 		naredbe = []
 		while not self >> E.KRAJ: naredbe.append(self.naredba()) 
-		return naredbe
+		return Program(naredbe)
 	
 	def naredba(self):
 		if self >> LST.LISTA:
@@ -108,18 +115,48 @@ class Lista_parser(Parser):
 		else:
 			self.greška()
 		
+class Program(AST('naredbe')):
+        def izvrši(self):
+            self.okolina = {}
+            for naredba in self.naredbe:
+                    naredba.izvrši(self.okolina)
+class Lista(AST('ime')):
+        
+        def izvrši(self,okolina):
+                okolina[self.ime.sadržaj] = []
+                print(okolina)
+                      
+class Prazna(AST('ime')):
 
-class Lista(AST('ime')): pass
-class Prazna(AST('ime')): pass
-class Ubaci(AST('ime element pozicija')): pass
-class Izbaci(AST('ime pozicija')): pass
-class Dohvati(AST('ime pozicija')): pass
-class Koliko(AST('ime')): pass
+        def izvrši(self, okolina):
+            if not len(okolina[self.ime.sadržaj]):
+                    print('Lista ',self.ime.sadržaj," je prazna") 
+        
+class Ubaci(AST('ime element pozicija')):
+        def izvrši(self, okolina):
+                okolina[self.ime.sadržaj].append(self.element.sadržaj)
+                print(okolina)
+                       
+class Izbaci(AST('ime pozicija')):
+        def izvrši(self, okolina):
+                pozicija = int(self.pozicija.sadržaj)
+                del okolina[self.ime.sadržaj][pozicija]
+                       
+class Dohvati(AST('ime pozicija')):
+        def izvrši(self, okolina):
+                pozicija = int(self.pozicija.sadržaj)
+                print(okolina[self.ime.sadržaj][pozicija])
+                       
+class Koliko(AST('ime')):
+        def izvrši(self, okolina):
+                
+                print("Duljina liste ",self.ime.sadržaj," je", len(okolina[self.ime.sadržaj]))
 
 """
 Semantički analizator.
-
+NE DODAJE NA MJESTO; NEGO SAMO APPEND U LISTU!!
 """
+        
 
 lexer = lista_lex('LSTA L1 889')
 for l in lexer:
@@ -127,7 +164,8 @@ for l in lexer:
 
 lexer = lista_lex('LISTA L1')
 print(*Lista_parser.parsiraj(lista_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0''')))
-
+program = Lista_parser.parsiraj(lista_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))
+program.izvrši()
 
 
 

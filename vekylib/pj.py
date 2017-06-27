@@ -192,7 +192,7 @@ class Parser:
 
     @classmethod
     def parsiraj(klasa, tokeni):
-        parser = klasa(tokeni)
+        parser = klasa(tokeni) #potrebno je def start metodu
         try: rezultat = parser.start()
         except NoneInAST: parser.greška()  # BUG: ovo nije dovoljno precizno!
         else:
