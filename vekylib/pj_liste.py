@@ -137,11 +137,10 @@ if __name__ == '__main__':
 	lj = lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0''')
 	print(*lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))
 	print(*LJParser.parsiraj(lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))) 
-	
-#print(*LJParser.parsiraj(lj_lex('''\
-#lista L1 prazna ubaci -2345 izbaci L9 dohvati 3 koliko tr
-#
-#''')).izvrši()) #krivo :D
+	program = LJParser.parsiraj(lj_lex('''lista L1  lista L3 ubaci L3 45 0  dohvati L3 0'''))
+	program.izvrši()
+print(*LJParser.parsiraj(lj_lex('''\
+lista L1 prazna L1 ubaci L1 -2345 0 izbaci L1 0 KOLIKO L1''')).izvrši()) #krivo :D
 
 #lista L1  lista L3
 #	ubaci L3 45 0  dohvati L3 0

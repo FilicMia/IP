@@ -3,7 +3,7 @@ docs.google.com
 Stari kolokviji iz Interpretacije programa
 10-12 minutes
 
-19. siječnja 2012.
+19. siječnja 2012. DONE
 
 Napišite leksički analizator za JavaScript funkcije. JavaScript funkcija počinje ključnom riječi function, zatim slijedi ime funkcije, pa lista parametara, te tijelo funkcije unutar vitičastih zagrada. Tijelo funkcije sastoji se od linijskih komentara (//) i od naredbi (niz znakova koji završava s ;). Npr.
 
@@ -15,13 +15,25 @@ function ime (var x, var y, ...){
 
 Napišite sintaksni analizator za prepoznavanje ispravno napisanih JavaScript funkcija iz prvog zadatka. Analizator treba pretvoriti zadani JavaScript program (koji se sastoji samo od funkcija) u apstraktna sintaksna stabla: Program, Funkcija, Naredba. U tijelu funkcije dozvolite više naredbi odvojenih s ; i linijske komentare.
 
-31. siječnja 2011.
+31. siječnja 2011. DONE
 
 Napišite leksički analizator za „programski jezik“ koji radi sa vezanom listom u kojoj se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti deklariranje liste (LISTA L1), gdje se ime liste sastoji od jednog velikog slova 'L' i jedne znamenke od 1 do 9 (dakle, možemo deklarirati maksimalno 9 listi). Operacije za rad sa listom su uobičajene: provjera je li lista prazna (PRAZNA L1), stavljanje elementa u listu na određeno mjesto (UBACI L1 2345 3 – ubacuje element 2345 na treće mjesto u listi L1), brisanje elementa iz liste (IZBACI L1 3 – izbacuje element s treće pozicije iz liste L1), dohvat elementa is liste (DOHVATI L1 3 – vraća element koji se u listi L1 nalazi na trećoj poziciji) i vraćanje duljine liste (KOLIKO L1). Napišite sintaksni analizator za taj programski jezik (svaka vrsta naredbe odgovara jednom tipu apstraktnog sintaksnog stabla). Napišite i odgovarajući semantički analizator (interpreter).
 
 3. veljače 2012.
 
-Napišite leksički analizator za „programski jezik“ koji radi sa skupovima u kojima se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti deklariranje skupa (npr. SKUP S), gdje se ime skupa sastoji od jednog velikog slova iz engleske abecede (npr. 'S'). Operacije za rad sa skupom su uobičajene: provjera je li skup prazan (PRAZAN S), ubacivanje elementa u skup (UBACI S 2345 32 41), izbacivanje elementa iz skupa (IZBACI S 2345 13), provjera da li je element u skupu (ELEMENT S 2345), vraćanje broja elemenata u skupu (VELIČINA S), te ispis skupa (ISPIŠI S). Napišite sintaksni analizator za taj programski jezik (svaka vrsta naredbe odgovara jednom tipu apstraktnog sintaksnog stabla). Omogućite da operacije UBACI i IZBACI mogu primiti više brojeva. Napišite i odgovarajući semantički analizator (interpreter).
+Napišite leksički analizator za „programski jezik“ koji radi sa skupovima u 
+kojima se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti 
+deklariranje skupa (npr. SKUP S), gdje se ime skupa sastoji od jednog 
+velikog slova iz engleske abecede (npr. 'S'). Operacije za rad sa 
+skupom su uobičajene: provjera je li skup prazan (PRAZAN S), 
+ubacivanje elementa u skup (UBACI S 2345 32 41), izbacivanje 
+elementa iz skupa (IZBACI S 2345 13), provjera da li je element 
+u skupu (ELEMENT S 2345), vraćanje broja elemenata u skupu 
+(VELIČINA S), te ispis skupa (ISPIŠI S). Napišite sintaksni 
+analizator za taj programski jezik (svaka vrsta naredbe odgovara 
+jednom tipu apstraktnog sintaksnog stabla). Omogućite da operacije 
+UBACI i IZBACI mogu primiti više brojeva. Napišite i odgovarajući 
+semantički analizator (interpreter).
 
 18. siječnja 2013.
 
@@ -39,11 +51,17 @@ Napišite sintaksni analizator (parser), te semantički analizator (kompajler u 
 
 16. veljače 2015.
 
-Napišite leksički analizator za jezik koji omogućuje (jako) pojednostavljeno korištenje for-petlji koje sintaksom sliče C++ for-petljama. Npr.
+Napišite leksički analizator za jezik koji omogućuje (jako) pojednostavljeno korištenje for-petlji 
+koje sintaksom sliče C++ for-petljama. Npr.
 
 for ( i = 8 ; i < 23 ; i += 2 ) cout << i << endl ;
 
-Naredba za ispis može sadržavati oznaku za kraj retka ili ne. Ime varijable se sastoji od jednog ili više malih slova engleske abecede. Petlje mogu biti ugniježđene, i program se može sastojati od više petlji. Petlja može sadržavati i blokove. Dozvolite osnovne operatore uspoređivanja i pridruživanja. Napravite sintaksni analizator i semantički analizator (interpreter) za taj jezik.
+Naredba za ispis može sadržavati oznaku za kraj retka ili ne. 
+Ime varijable se sastoji od jednog ili više malih slova engleske abecede. 
+Petlje mogu biti ugniježđene, i program se može sastojati od više petlji. 
+Petlja može sadržavati i blokove. Dozvolite osnovne operatore uspoređivanja i 
+pridruživanja. Napravite sintaksni analizator i semantički analizator 
+(interpreter) za taj jezik.
 
 2. veljače 2015.
 
@@ -68,17 +86,28 @@ Napišite leksički, sintaksni i semantički analizator (kompajler u Python) za 
 
 24. veljače 2017.
 
-Programski jezik μLogo ima tri ključne riječi: FORWARD, LEFT i REPEAT. Ključna riječ FORWARD može se skratiti u FD, a LEFT u LT (ne mijenjajući tip tokena). U μLogu postoje i prirodni brojevi, te uglate zagrade. Oni mogu biti razdvojeni prazninama, koje se zanemaruju. Sve ostalo je leksička greška. Napišite potrebne tipove tokena.
+Programski jezik μLogo ima tri ključne riječi: FORWARD, LEFT i REPEAT. Ključna riječ 
+FORWARD može se skratiti u FD, a LEFT u LT (ne mijenjajući tip tokena). 
+U μLogu postoje i prirodni brojevi, te uglate zagrade. Oni mogu biti 
+razdvojeni prazninama, koje se zanemaruju. Sve ostalo je leksička greška. 
+Napišite potrebne tipove tokena.
 
-Napišite lekser za μLogo. Primjer: ] 57 BLAbla REPEAT FD treba generirati tokene ZATV']', BROJ'57', GREŠKA'BLAbla', REPEAT'REPEAT', FORWARD'FD'.
+Napišite lekser za μLogo. Primjer: ] 57 BLAbla 
+REPEAT FD treba generirati tokene ZATV']', BROJ'57', GREŠKA'BLAbla', REPEAT'REPEAT', FORWARD'FD'.
 
-μLogo ima tri vrste naredbi: FORWARD x za pomicanje kursora x piksela u trenutnom smjeru, LEFT x za rotaciju trenutnog smjera x stupnjeva pozitivno, te REPEAT x [ naredbe ]  za izvršavanje grupe naredbi x puta. Argument x predstavlja prirodan broj.
+μLogo ima tri vrste naredbi: FORWARD x za pomicanje kursora x piksela u 
+trenutnom smjeru, LEFT x za rotaciju trenutnog smjera x stupnjeva 
+pozitivno, te REPEAT x [ naredbe ]  za izvršavanje grupe naredbi x puta. 
+Argument x predstavlja prirodan broj.
 
 Napišite beskontekstnu gramatiku za μLogo, nad abecedom koju čine tipovi tokena.
 Dokažite da bi ta gramatika bila višeznačna da iz jezika izbacimo uglate zagrade.
-Napišite parser za μLogo. Parser treba vratiti tip.AST strukturu (ili listu njih) ako je ulaz validan μLogo program, a prijaviti detaljnu sintaksnu grešku ako nije.
+Napišite parser za μLogo. Parser treba vratiti tip.AST strukturu 
+(ili listu njih) ako je ulaz validan μLogo program, 
+a prijaviti detaljnu sintaksnu grešku ako nije.
 
-Primjer: REPEAT 4 [LT 90 FD 150] LT 30 FD 150 LT 120 FD 150 crta kućicu. Parsira se kao lista [REPEAT(x=4, naredbe=[LEFT(x=90), FORWARD(x=150)]),
+Primjer: REPEAT 4 [LT 90 FD 150] LT 30 FD 150 LT 120 FD 150 crta kućicu. 
+Parsira se kao lista [REPEAT(x=4, naredbe=[LEFT(x=90), FORWARD(x=150)]),
 LEFT(x=30), FORWARD(x=150), LEFT(x=120), FORWARD(x=150)].
 
 Napišite kompajler μLogo jezika u JavaScript. Koristite canvas.
