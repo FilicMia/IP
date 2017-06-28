@@ -19,7 +19,7 @@ Napišite sintaksni analizator za prepoznavanje ispravno napisanih JavaScript fu
 
 Napišite leksički analizator za „programski jezik“ koji radi sa vezanom listom u kojoj se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti deklariranje liste (LISTA L1), gdje se ime liste sastoji od jednog velikog slova 'L' i jedne znamenke od 1 do 9 (dakle, možemo deklarirati maksimalno 9 listi). Operacije za rad sa listom su uobičajene: provjera je li lista prazna (PRAZNA L1), stavljanje elementa u listu na određeno mjesto (UBACI L1 2345 3 – ubacuje element 2345 na treće mjesto u listi L1), brisanje elementa iz liste (IZBACI L1 3 – izbacuje element s treće pozicije iz liste L1), dohvat elementa is liste (DOHVATI L1 3 – vraća element koji se u listi L1 nalazi na trećoj poziciji) i vraćanje duljine liste (KOLIKO L1). Napišite sintaksni analizator za taj programski jezik (svaka vrsta naredbe odgovara jednom tipu apstraktnog sintaksnog stabla). Napišite i odgovarajući semantički analizator (interpreter).
 
-3. veljače 2012.
+3. veljače 2012. DONE
 
 Napišite leksički analizator za „programski jezik“ koji radi sa skupovima u 
 kojima se nalaze cijeli brojevi (niz znamenki). Jezik treba omogućiti 
@@ -84,7 +84,7 @@ Napišite leksički, sintaksni i semantički analizator (kompajler u Python) za 
     Svaki nespecijalni znak α predstavlja jezik koji sadrži samo jednoslovnu riječ α. Izraz (r) predstavlja isti jezik kao izraz r, dok izraz r* predstavlja Kleenejevu zvijezdu tog jezika. Napišite klasu RIParser tako da funkcija RIParser.parsiraj prima string i vraća RegularanIzraz kojeg on predstavlja.
     Prijavite korisne poruke o greškama (navodeći poziciju greške, koji tokeni su očekivani, a koji je pročitan) ako argument od RI_parse ne predstavlja validan regularan izraz. (Ovo će biti trivijalno ispunjeno ako koristite pj framework.)
 
-24. veljače 2017.
+24. veljače 2017. DONE
 
 Programski jezik μLogo ima tri ključne riječi: FORWARD, LEFT i REPEAT. Ključna riječ 
 FORWARD može se skratiti u FD, a LEFT u LT (ne mijenjajući tip tokena). 
