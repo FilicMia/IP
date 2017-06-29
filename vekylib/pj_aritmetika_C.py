@@ -130,8 +130,8 @@ def izračunaj(string): return (ACParser.parsiraj(ac_lex(string)))
 
 if __name__ == '__main__':
     from math import pi
-    print(izračunaj('2+2*3'))
-    #print(izračunaj('(1+6*i)/(-4-3*i)^2'))
+    print(izračunaj('1+2+3')) # i ne može biti ime
+    print(izračunaj('(1+6*i)/(-4-3*i)^2'))
     #print(izračunaj('i^i'))
     #print(izračunaj('''\
      #   i+1 -> t

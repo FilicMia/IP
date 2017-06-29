@@ -189,10 +189,9 @@ class ri_par(Parser):
             
             
     
-class PROGRAM(AST('naredbe')): pass
-class UNARNI(AST('faktor1 operator')): pass
-class BINARNI(AST('faktor1 operator faktor2 ')): pass
-class ELEMENT(AST('element')): pass
+class UNARNI(AST('faktor1 operator')): pass # ko binarni
+class BINARNI(AST('faktor1 operator faktor2 ')): pass # prema op bira operaciju iz RI
+class ELEMENT(AST('element')): pass #samo čita svoj element
 
 if __name__ == '__main__':
     lex = ri_lex('''\
