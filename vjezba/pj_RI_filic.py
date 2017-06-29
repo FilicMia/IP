@@ -12,7 +12,6 @@ Parser koji pravilno grupira tokene lexera.
 Semantička analiza: gradi jezik pretstvalja dani regularni jezik.
 
 """
-
 class Ri(enum.Enum):
     ZVIJEZDA = '*'
     PLUS = '+'
@@ -73,85 +72,127 @@ uznak -> UPITNIK | ZVIJEZDA | PLUS
   
 class ri_par(Parser):
     def start(self):
-        naredbe = []
-        while not self >> E.KRAJ: naredbe.append(self.naredba())
-            
+        izrazi = []
+        self.faktor1 = False
+        while not self >> E.KRAJ:
+            self.faktor1 = self.izraz()
+            print('...', self.faktor1)
+            print('------------------------')
 
-    def naredba(self):
-    
-        self.faktor = False
+    #ZA LIJEVO ASOCIRANE OPERATORE - BITNO PROVJERITI
+#JE LI SE NALAZE IZA BILO KOJE CJELINE NA KOJU SE MOGU PRIMJENITI.
+# IZA (...),BINARAN(faktor1, op, faktor2),UNARAN(faktor1, op) cjeline ili ZNAK-a       
+    def provjeri_unaran(self,unarni):
+
+        while True:
+                sljedeći = self.čitaj()
+                if not sljedeći ** {Ri.PLUS, Ri.ZVIJEZDA, Ri.UPITNIK}:
+                    self.vrati()
+                    break
+                unarni = UNARNI(unarni, self.zadnji.sadržaj)
+        return unarni
+
+    def izraz(self):
+        
         if self >> Ri.OTV:
-            f = self.izraz()
-            self.pročitaj(Ri.ZATV)
-            if self.faktor:
-                op = Ri.CONCAT
-                faktor_prvi = self.faktor
-                faktor_drugi = f
+            self.vrati()
+            unarni = self.faktor()
             
-                self.faktor = False
-                return BINARNI(faktor_prvi,op,faktor_drugi)
+            if self.faktor1:
+                op = Ri.CONCAT.value
+                faktor_prvi = self.faktor1
+                faktor_drugi = unarni
+            
+                self.faktor1 = False
+                return self.provjeri_unaran(BINARNI(faktor_prvi,op,faktor_drugi))
             else:
-                self.faktor = f
+                self.faktor1 = unarni
+                return self.izraz()
             
         elif self >> Ri.ZNAK:
-            Ri.vrati()
-            f = self.znakovi()
-            if self.faktor:
-                op = Ri.CONCAT
-                faktor_prvi = self.faktor
-                faktor_drugi = f
+            unarni = self.provjeri_unaran(ELEMENT(self.zadnji))
             
-                self.faktor = False
-                return BINARNI(faktor_prvi,op,faktor_drugi)
+            if self.faktor1:
+                op = Ri.CONCAT.value
+                faktor_prvi = self.faktor1
+                self.faktor1 = False
+                faktor_drugi = unarni
+                
+                return self.provjeri_unaran(BINARNI(faktor_prvi,op,faktor_drugi))
             else:
-                self.faktor = f
+                self.faktor1 = ELEMENT(unarni)
+                return self.izraz()
             
         elif self >> {Ri.CONCAT,Ri.UNIJA}: #binaran
-            op = self.zadnji
+            op = self.zadnji.sadržaj
+           
+            faktor_prvi = self.faktor1
+            self.faktor1 = False
+            faktor_drugi = self.faktor()
             
-            faktor_prvi = self.faktor
-            faktor_drugi = self.izraz()
-            print(faktor_prvi, faktor_drugi)
-            
-            self.faktor = False
-            return BINARNI(faktor_prvi,op,faktor_drugi)
+            return self.provjeri_unaran(BINARNI(faktor_prvi,op,faktor_drugi))
         
         elif self >> {Ri.PLUS, Ri.ZVIJEZDA, Ri.UPITNIK}:
-            op = self.zadnji
-            faktor_prvi = self.faktor
+            self.vrati()
+            faktor_prvi = self.faktor1
             
-            self.faktor = False
-            return UNARNI(faktor_prvi,op)
+            self.faktor1 = False
+            return self.provjeri_unaran(faktor_prvi)
         elif self >> {Ri.EPSILON, Ri.PRAZAN}:
+            unarni = self.provjeri_unaran(ELEMENT(self.zadnji))
             
-            if self.faktor:
-                op = Ri.CONCAT
-                faktor_prvi = self.faktor
-                faktor_drugi = self.zadnji
+            if self.faktor1:
+                op = Ri.CONCAT.value
+                faktor_prvi = self.faktor1
+                self.faktor1 = unarni
+                faktor_drugi = self.izraz()
             
-                self.faktor = False
-                return BINARNI(faktor_prvi,op,faktor_drugi)
+                self.faktor1 = False
+                return self.provjeri_unaran(BINARNI(faktor_prvi,op,faktor_drugi))
             else:
-                self.faktor = self.zadnji
+                
+                self.faktor1 = unarni
+                return self.izraz()
+        elif self >> {E.KRAJ,Ri.ZATV,Ri.OTV}:
+            if self.faktor1:
+                self.vrati()
+                return self.provjeri_unaran(self.faktor1)
+            
         else:
             self.greška()
             
 
-    def znakovi(self):
-        znakovi = []
-        while self >> Ri.ZNAK:
-            znakovi.append(self.zadnji)
-        return znakovi
-
-    def izraz(self):
-        if self >> Ri.OTV:
-            self.izraz()
+    def faktor(self):
+        f = False
+        if self >> Ri.OTV: #Ako čitamo otv zagradu, onda se ono unutra ne
+            # smije primjeniti  (zagrade su izolacija)
+            # na ništa prije. Čistimo self.faktor1, i čuvamo za implicitnu
+            # konkatenaciju kasnije.
+            # Primjetimo kako ne moče vezivati
+            # self.faktor i ono što će biti pročitano jer:
+            # Ako je koji od binarnih znakova bio između
+            # self.faktor1 i OTV, ova funkcija se ne bi odma pozvala, nego
+            # bi ušli u if dio f-je izraz koji bi prvo očistio self.faktor1,
+            # ostaje prazan.
+            prvi = self.faktor1
+            self.faktor1 = False
+            f = self.izraz()
             self.pročitaj(Ri.ZATV)
+            f = self.provjeri_unaran(f)
+            if prvi: # Dakle, tu ne bi ušli. Ako nešto ipak postoji odprije,
+                # implicitna konkatenacija s novopročitanim i ovo će
+                # to nešto konkatenirati s novopročitanim dijelom
+                return self.provjeri_unaran(BINARNI(prvi,Ri.CONCAT.value,f))
+        elif self >> Ri.ZNAK:   
+            f = self.zadnji
+        return self.provjeri_unaran(ELEMENT(f))
+            
             
     
 class PROGRAM(AST('naredbe')): pass
 class UNARNI(AST('faktor1 operator')): pass
 class BINARNI(AST('faktor1 operator faktor2 ')): pass
+class ELEMENT(AST('element')): pass
 
 if __name__ == '__main__':
     lex = ri_lex('''\
@@ -162,4 +203,4 @@ if __name__ == '__main__':
     regex = '/1|a(/(c?)*'
 
     print(*ri_lex(regex))
-    print(ri_par.parsiraj(ri_lex('/1|a(/(c?)*')))
+    print(ri_par.parsiraj(ri_lex('/1|a(/(c?)*/1|a(/(c?)*')))
