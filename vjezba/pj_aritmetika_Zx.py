@@ -40,7 +40,7 @@ x -> 1*x
 
 """
 BKG:
-izraz -> izraz PLUS član | član MINUS izraz | član
+izraz -> izraz PLUS član | izraz MINUS član | član
 član -> član PUTA faktor | faktor | član faktor |MINUS član
 faktor -> BROJ X BROJ | BROJ | OTV izraz ZATV |X
 """
@@ -105,13 +105,55 @@ class Zxpar(Parser):
             self.pročitaj(Zx.ZATV)
             return izraz
 
-class BINARNA(AST('prvi drugi')):pass
-class PLUS(BINARNA):pass
-class PUTA(BINARNA): pass
-class MINUS(BINARNA): pass
-class MONOM(AST('broj na')): pass #3x8 x 8 9
+"""
+Paziti koja okolina je moja okolina.
+"""
+def izvrši(par):
+    okolina = {}
+    return par.izvrši(okolina)
 
-tests = [3]
+class BINARNA(AST('prvi drugi')):pass
+class PLUS(BINARNA):
+    def izvrši(self,okolina):
+        moja_okolina = {}
+        okolina1 = self.prvi.izvrši(moja_okolina)
+        okolina2 = self.drugi.izvrši(moja_okolina)
+        
+        for k,v in okolina2.items():
+            if k not in okolina1:
+                okolina1[k] = 0
+            okolina1[k] = okolina1[k]+okolina2[k]
+            
+        return okolina1
+
+"""class PUTA(BINARNA):
+    def izvrši(self, okolina):
+        moja_okolina = {}
+        okolina1 = self.prvi.izvrši(moja_okolina)
+        okolina2 = self.drugi.izvrši(moja_okolina)
+        
+        return reduce(lambda x, y: dict((k, v + y[k]) for k, v in x.iteritems()), dict1)"""
+
+class MINUS(BINARNA):
+    def izvrši(self,okolina):
+        moja_okolina = {}
+        okolina1 = self.prvi.izvrši(moja_okolina)
+        
+        okolina2 = self.drugi.izvrši(moja_okolina)
+        for k,v in okolina2.items():
+            if k not in okolina1:
+                okolina1[k] = 0
+            okolina1[k] = okolina1[k]-okolina2[k]
+            
+        
+        return okolina1
+class MONOM(AST('broj na')): #3x8 x 8 9
+    def izvrši(self, okolina):
+        okolina = {}
+        okolina[self.na] = int(self.broj)
+        return okolina
+
+tests = [4]
 if __name__ == '__main__':
     if 1 in tests:
         string = '(5+2*8-3)(3-1)-(-4+2*19)'
@@ -123,6 +165,11 @@ if __name__ == '__main__':
         lex = lex_Zx(string)
         print(*lex)
     if 3 in tests:
-        string = '(x-2+5x-(7x-5))-(x-2+5x-(7x-5))'
+        string = '(x-2+5x-(7x-5))'
         lex = lex_Zx(string)
         print(Zxpar.parsiraj(lex))
+    if 4 in tests:
+        string = '(x-2+5x-(7x-5))'
+        lex = lex_Zx(string)
+        par = Zxpar.parsiraj(lex)
+        print(izvrši(par))
