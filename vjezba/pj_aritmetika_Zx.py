@@ -54,9 +54,10 @@ class Zxpar(Parser):
         rez = False
         while not self >> E.KRAJ:
             if rez:
-                rez = PUTA(rez,self.polinom())
+                rez = PUTA(rez,self.izraz())
             else:
-                rez = self.polinom()
+                rez = self.izraz()
+        return rez
 
     def izraz(self):
         izraz = self.član() # za lijevu asociranost potrebno je znanje o desnoj
@@ -87,11 +88,22 @@ class Zxpar(Parser):
             if self.pogledaj() ** Zx.X:
                 x = True
                 self.čitaj()
+                na = '1'
                 if self.pogledaj() ** Zx.BROJ:
                     na = self.čitaj().sadržaj
-                    
+                return MONOM(broj,na)
             
-
+            else:
+                return MONOM(broj,'0')
+        elif self >> Zx.X:
+            na = '1'
+            if self.pogledaj() ** Zx.BROJ:
+                na = self.čitaj().sadržaj
+            return MONOM('1',na)
+        elif self >> Zx.OTV:
+            izraz = self.izraz()
+            self.pročitaj(Zx.ZATV)
+            return izraz
 
 class BINARNA(AST('prvi drugi')):pass
 class PLUS(BINARNA):pass
@@ -99,7 +111,7 @@ class PUTA(BINARNA): pass
 class MINUS(BINARNA): pass
 class MONOM(AST('broj na')): pass #3x8 x 8 9
 
-tests = [2]
+tests = [3]
 if __name__ == '__main__':
     if 1 in tests:
         string = '(5+2*8-3)(3-1)-(-4+2*19)'
@@ -110,5 +122,7 @@ if __name__ == '__main__':
         string = '(x-2+5x-(7x-5))-(x-2+5x-(7x-5))'
         lex = lex_Zx(string)
         print(*lex)
-        
-    
+    if 3 in tests:
+        string = '(x-2+5x-(7x-5))-(x-2+5x-(7x-5))'
+        lex = lex_Zx(string)
+        print(Zxpar.parsiraj(lex))
