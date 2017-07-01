@@ -143,7 +143,7 @@ def uNand(sklop):
         ulazi = [Not(x) for x in sklop.ulazi]
         
         return [[uNand(x) for x in sklop.ulazi]]
-        #return uNand(Or(sklop.ulazi))
+        #return [uNand(x) for x in sklop.ulazi] KRIVO
     elif sklop ** Not:
         if sklop.ulaz ** DS.SLOVO:
             return [sklop.ulaz.sadržaj]
@@ -152,7 +152,7 @@ def uNand(sklop):
     elif sklop ** Or: #OR može dobiti de Morganovim pravilom
         return [uNand(Not(x)) for x in sklop.ulazi]
         #ulazi = [Not(x) for x in sklop.ulazi] #(x'y'z')'
-        #return uNand(And(ulazi))
+        #return uNand(And(ulazi)) KRIVO
     elif sklop ** DS.SLOVO:
         return sklop.sadržaj
     else: assert not 'slučaj'
