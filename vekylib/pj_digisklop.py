@@ -142,15 +142,19 @@ def uNand(sklop):
     if sklop ** And: #AND je kompozicija od NOT i NAND
         ulazi = [Not(x) for x in sklop.ulazi]
         
-        return [uNand(Not(x)) for x in sklop.ulazi]
+        return [[uNand(x) for x in sklop.ulazi]]
+        #return uNand(Or(sklop.ulazi))
     elif sklop ** Not:
         if sklop.ulaz ** DS.SLOVO:
             return [sklop.ulaz.sadržaj]
         else:
             return [uNand(sklop.ulaz)]
     elif sklop ** Or: #OR može dobiti de Morganovim pravilom
-        ulazi = [Not(x) for x in sklop.ulazi] #(x'y'z')'
-        return uNand(And(ulazi)) 
+        return [uNand(Not(x)) for x in sklop.ulazi]
+        #ulazi = [Not(x) for x in sklop.ulazi] #(x'y'z')'
+        #return uNand(And(ulazi))
+    elif sklop ** DS.SLOVO:
+        return sklop.sadržaj
     else: assert not 'slučaj'
 
         
@@ -158,11 +162,18 @@ def pod_negacijom(sklop):
     """Vraća x ako je sklop == [x], inače None."""
     if isinstance(sklop, list) and len(sklop) == 1: return sklop[0]
 
-def optimiziraj(sklop):
-    ...
+def optimiziraj(nand,početak=True):
+    print(str(nand))
+    if len(nand) == 1 and len(nand[0]) == 1:
+        if not početak:
+            return nand[0][0]
+        else:
+            return nand
+    else:
+        return [optimiziraj(item,False) for item in nand]
 
 
-tests = [30]
+tests = [41]
 if __name__ == '__main__':
     if 1 in tests:
         print('parser')
@@ -209,6 +220,11 @@ if __name__ == '__main__':
         print(ast.ulazi)
         
     if 30 in tests:
+        print('lexer')
+        opis = "p+k+z"
+        tokeni = list(ds_lex(opis))
+        ast = DSParser.parsiraj(tokeni)
+        print(ast)
         print('ast')
         opis = "p+k+z"
         tokeni = list(ds_lex(opis))
@@ -230,6 +246,14 @@ if __name__ == '__main__':
         ast = DSParser.parsiraj(tokeni)
         nand = uNand(ast)
         print(nand)  # [['x', [[[[['y', 'x', ['x']]]]], [['y']]]]]
+    if 41 in tests:
+        opis = "x([yxx']+y')"
+        tokeni = list(ds_lex(opis))
+        ast = DSParser.parsiraj(tokeni)
+        nand = uNand(ast)
+        opt = optimiziraj(nand)
+        print('opt')
+        print(opt)  # [['x', [[['y', 'x', ['x']]], 'y']]]
     if 4 in tests:
         opis = "x([yxx']+y')"
         tokeni = list(ds_lex(opis))
